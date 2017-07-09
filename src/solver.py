@@ -51,6 +51,11 @@ def eliminateUnit(equ_modify, ind_modify, var_modify):
             equ[y].remove(x)
             ind_modify.append(y)
             ind.remove(y)
+            for z in equ[y]:
+                equ_modify.append((y, z))
+                var_modify.append((z, y))
+                var[z].remove(y)
+            equ[y].clear()
         var[x].clear()
 
         # modify those opposite literal
@@ -79,9 +84,13 @@ def eliminatePure(equ_modify, ind_modify, var_modify):
             var_modify.append((x, y))
             equ_modify.append((y, x))
             equ[y].remove(x)
-            if y in ind:
-                ind_modify.append(y)
-                ind.remove(y)
+            ind_modify.append(y)
+            ind.remove(y)
+            for z in equ[y]:
+                equ_modify.append((y, z))
+                var_modify.append((z, y))
+                var[z].remove(y)
+            equ[y].clear()
         var[x].clear()
     return True
             
@@ -108,6 +117,11 @@ def setVariable(v, lab, vequ_modify, vind_modify, vvar_modify):
         if lab:
             vind_modify.append(x)
             ind.remove(x)
+            for y in equ[x]:
+                vequ_modify.append((x, y))
+                vvar_modify.append((y, x))
+                var[y].remove(x)
+            equ[x].clear()
     var[v].clear()
 
     for x in var[-v]:
@@ -117,6 +131,11 @@ def setVariable(v, lab, vequ_modify, vind_modify, vvar_modify):
         if not lab:
             vind_modify.append(x)
             ind.remove(x)
+            for y in equ[x]:
+                vequ_modify.append((x, y))
+                vvar_modify.append((y, x))
+                var[y].remove(x)
+            equ[x].clear()
     var[-v].clear()
 
 def undoChange(equ_mod, ind_mod, var_mod):
@@ -126,10 +145,12 @@ def undoChange(equ_mod, ind_mod, var_mod):
     for x, y in var_mod:
         var[x].add(y)
     for x in ind_mod:
-        ind.append(x)
+        ind.add(x)
 
 def dpll():
     global is_sat, n, ans, equ, ind, var
+    print(ind)
+    print(equ[30])
     if not ind:
         is_sat = True
         return
@@ -147,7 +168,7 @@ def dpll():
         flag |= eliminatePure(equ_modify, ind_modify, var_modify)
 
     if conflict:
-        undoAllChange(equ_modify, ind_modify, var_modify)
+        undoChange(equ_modify, ind_modify, var_modify)
         return
 
     if not ind:

@@ -34,6 +34,8 @@ def readfromconsole():
             s = input()
             if not len(s):
                 pass
+            elif s[0] == '%':
+                pass
             elif s[0] == 'c':
                 pass
             elif s[0] == 'p':
@@ -75,6 +77,8 @@ def readfromfile(filepath):
         f = open(filepath, 'r')
         for s in f.readlines():
             if not len(s):
+                pass
+            elif s[0] == '%':
                 pass
             elif s[0] == 'c':
                 pass
