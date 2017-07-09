@@ -1,2 +1,5 @@
 # DPLL
-DPLL based SAT Solver---Logic and Program Verification
+## Description
+DPLL based SAT Solver
+## Course
+Logic and Program Verification
