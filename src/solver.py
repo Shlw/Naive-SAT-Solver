@@ -104,7 +104,10 @@ def chooseVariable():
     maxn = 0
     for x in var:
         if x > 0 and var[x]:
-            s = len(var[x]) + len(var[-x])
+            #s = len(var[x]) + len(var[-x])
+            l1 = len(var[x])
+            l2 = len(var[-x])
+            s = l1 + l2 #- abs(l1 - l2) 
             if s > maxn:
                 maxn = s
                 ret = x
