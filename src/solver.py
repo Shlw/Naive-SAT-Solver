@@ -23,9 +23,6 @@ def prepare():
                 cftInClause = True
                 return
         equ.append(now)
-#    print(ind)
-#    print(equ)
-#    print(var)
              
 def setVariable(v, lab, equ_modify, ind_modify, var_modify): 
     global ans, equ, ind, var
@@ -81,8 +78,9 @@ def eliminateUnit(equ_modify, ind_modify, var_modify):
                 return False, True
     if not lst:
         return False, False
-    for x in lst:
-        setVariable(x, True, equ_modify, ind_modify, var_modify)
+    x = lst.pop()
+    setVariable(x, True, equ_modify, ind_modify, var_modify)
+
     return True, False
 
 
@@ -96,6 +94,7 @@ def eliminatePure(equ_modify, ind_modify, var_modify):
         return False
     for x in lst:
         setVariable(x, True, equ_modify, ind_modify, var_modify)
+
     return True
             
 # choose the most frequently appeared variable 
@@ -199,11 +198,11 @@ def main():
             dpll()
 
     if is_sat:
-        #print('Satisfiable')
+        print('Satisfiable')
+        #for i in range(1, n + 1):
+            #print('x_%d = %d' % (i, ans[i]))
         if not check():
             print('Conflict')
-#        for i in range(1, n + 1):
-#            print('x_%d = %d' % (i, ans[i]))
     else:
         print('Unsatisfiable')
 
