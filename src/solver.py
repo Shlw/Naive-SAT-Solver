@@ -23,9 +23,51 @@ def prepare():
                 cftInClause = True
                 return
         equ.append(now)
-    #print(ind)
-    #print(equ)
-    #print(var)
+#    print(ind)
+#    print(equ)
+#    print(var)
+             
+def setVariable(v, lab, equ_modify, ind_modify, var_modify): 
+    global ans, equ, ind, var
+    if v < 0:
+        v = -v
+        lab = not lab
+    ans[v] = lab
+    for x in var[v]:
+        var_modify.append((v, x))
+        equ_modify.append((x, v))
+        equ[x].remove(v)
+        if not equ[x]:
+            ind_modify.append(x)
+            ind.remove(x)
+            continue
+        if lab:
+            ind_modify.append(x)
+            ind.remove(x)
+            for y in equ[x]:
+                equ_modify.append((x, y))
+                var_modify.append((y, x))
+                var[y].remove(x)
+            equ[x].clear()
+    var[v].clear()
+
+    for x in var[-v]:
+        var_modify.append((-v, x))
+        equ_modify.append((x, -v))
+        equ[x].remove(-v)
+        if not equ[x]:
+            ind_modify.append(x)
+            ind.remove(x)
+            continue
+        if not lab:
+            ind_modify.append(x)
+            ind.remove(x)
+            for y in equ[x]:
+                equ_modify.append((x, y))
+                var_modify.append((y, x))
+                var[y].remove(x)
+            equ[x].clear()
+    var[-v].clear()
 
 def eliminateUnit(equ_modify, ind_modify, var_modify):
     global ans, equ, ind, var
@@ -40,30 +82,7 @@ def eliminateUnit(equ_modify, ind_modify, var_modify):
     if not lst:
         return False, False
     for x in lst:
-        if x > 0:
-            ans[x] = True
-        else:
-            ans[-x] = False
-        # remove those true clause
-        for y in var[x]:
-            var_modify.append((x, y))
-            equ_modify.append((y, x))
-            equ[y].remove(x)
-            ind_modify.append(y)
-            ind.remove(y)
-            for z in equ[y]:
-                equ_modify.append((y, z))
-                var_modify.append((z, y))
-                var[z].remove(y)
-            equ[y].clear()
-        var[x].clear()
-
-        # modify those opposite literal
-        for y in var[-x]:
-            var_modify.append((-x, y))
-            equ_modify.append((y, -x))
-            equ[y].remove(-x)
-        var[-x].clear()
+        setVariable(x, True, equ_modify, ind_modify, var_modify)
     return True, False
 
 
@@ -76,25 +95,10 @@ def eliminatePure(equ_modify, ind_modify, var_modify):
     if not lst:
         return False
     for x in lst:
-        if x > 0:
-            ans[x] = True
-        else:
-            ans[-x] = False
-        for y in var[x]:
-            var_modify.append((x, y))
-            equ_modify.append((y, x))
-            equ[y].remove(x)
-            ind_modify.append(y)
-            ind.remove(y)
-            for z in equ[y]:
-                equ_modify.append((y, z))
-                var_modify.append((z, y))
-                var[z].remove(y)
-            equ[y].clear()
-        var[x].clear()
+        setVariable(x, True, equ_modify, ind_modify, var_modify)
     return True
             
-# choose the most frequent variable 
+# choose the most frequently appeared variable 
 def chooseVariable():
     global var
     ret = 0
@@ -106,51 +110,18 @@ def chooseVariable():
                 maxn = s
                 ret = x
     return ret
-             
-def setVariable(v, lab, vequ_modify, vind_modify, vvar_modify): 
-    global ans, equ, ind, var
-    ans[v] = lab
-    for x in var[v]:
-        vvar_modify.append((v, x))
-        vequ_modify.append((x, v))
-        equ[x].remove(v)
-        if lab:
-            vind_modify.append(x)
-            ind.remove(x)
-            for y in equ[x]:
-                vequ_modify.append((x, y))
-                vvar_modify.append((y, x))
-                var[y].remove(x)
-            equ[x].clear()
-    var[v].clear()
 
-    for x in var[-v]:
-        vvar_modify.append((-v, x))
-        vequ_modify.append((x, -v))
-        equ[x].remove(-v)
-        if not lab:
-            vind_modify.append(x)
-            ind.remove(x)
-            for y in equ[x]:
-                vequ_modify.append((x, y))
-                vvar_modify.append((y, x))
-                var[y].remove(x)
-            equ[x].clear()
-    var[-v].clear()
-
-def undoChange(equ_mod, ind_mod, var_mod):
+def undoChange(equ_modify, ind_modify, var_modify):
     global equ, ind, var
-    for x, y in equ_mod:
+    for x, y in equ_modify:
         equ[x].add(y)
-    for x, y in var_mod:
+    for x, y in var_modify:
         var[x].add(y)
-    for x in ind_mod:
+    for x in ind_modify:
         ind.add(x)
 
 def dpll():
     global is_sat, n, ans, equ, ind, var
-    print(ind)
-    print(equ[30])
     if not ind:
         is_sat = True
         return
@@ -160,7 +131,6 @@ def dpll():
     var_modify = []
     flag = True
     conflict = False
-
     while flag:
         flag, conflict = eliminateUnit(equ_modify, ind_modify, var_modify)
         if conflict:
@@ -180,7 +150,7 @@ def dpll():
     vequ_modify = []
     vind_modify = []
     vvar_modify = []
-    setVariable(v, 1, vequ_modify, vind_modify, vvar_modify)
+    setVariable(v, True, vequ_modify, vind_modify, vvar_modify)
     dpll()
     if is_sat:
         return
@@ -190,13 +160,26 @@ def dpll():
     vequ_modify = []
     vind_modify = []
     vvar_modify = []
-    setVariable(v, 0, vequ_modify, vind_modify, vvar_modify)
+    setVariable(v, False, vequ_modify, vind_modify, vvar_modify)
     dpll()
     if is_sat:
         return
     undoChange(vequ_modify, vind_modify, vvar_modify)
 
     undoChange(equ_modify, ind_modify, var_modify)
+    
+def check():
+    global ans, lst, n
+    for x in lst:
+        flag = False
+        for y in x:
+            if y > 0:
+                flag |= ans[y]
+            else:
+                flag |= not ans[-y]
+        if not flag:
+            return False
+    return True
 
 def main():
     global lst, is_sat, n, ans, cftInClause
@@ -216,9 +199,11 @@ def main():
             dpll()
 
     if is_sat:
-        print('Satisfiable')
-        for i in range(1, n + 1):
-            print('x_%d = %d' % (i, ans[i]))
+        #print('Satisfiable')
+        if not check():
+            print('Conflict')
+#        for i in range(1, n + 1):
+#            print('x_%d = %d' % (i, ans[i]))
     else:
         print('Unsatisfiable')
 
