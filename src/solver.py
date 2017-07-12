@@ -1,6 +1,6 @@
 # DPLL based SAT Solver
 
-import parser
+import CNFparser
 import sys
 
 global lst, is_sat, n, m, ans, equ, ind, var, cftInClause
@@ -186,9 +186,9 @@ def check():
 def main():
     global lst, is_sat, n, ans, cftInClause
     if len(sys.argv) == 1:
-        n, lst = parser.parse()
+        n, lst = CNFparser.parse()
     elif len(sys.argv) == 2:
-        n, lst = parser.parse(sys.argv[1])
+        n, lst = CNFparser.parse(sys.argv[1])
     else:
         print('Invalid Argv')
         return
