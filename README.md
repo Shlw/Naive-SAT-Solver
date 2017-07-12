@@ -8,7 +8,7 @@ or
     python3 solver.py <file path>
 
 It also supports input from console by leaving
-<file path> empty.
+<file path\> empty.
 ## Input Format
 DIMACS-CNF Format
 ## Course
