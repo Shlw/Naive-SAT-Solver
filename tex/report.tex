@@ -1,17 +1,31 @@
 % !TeX encoding = UTF-8
-% !TeX program = XeLaTeX
+% !TeX program = xelatex+shellescape
 % !TeX spellcheck = LaTeX
 %
 % Author : Shlw
-\documentclass[a4paper,12pt]{article}
+\documentclass[a4paper,10pt]{article}
 
-\usepackage{amsmath, amssymb, amsthm}
+\usepackage{amsmath}
 \usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage{geometry}
-\usepackage{amssymb}
+\usepackage{caption}
+\usepackage{minted}
+\usepackage{xcolor}
+\usepackage{dingbat}
 
-%\geometry{left=2cm,right=2cm,top=2cm,bottom=2cm}
+\geometry{left=1.5cm,right=1.5cm,top=0cm,bottom=2cm}
+
+\hypersetup{hidelinks}
+
+\definecolor{bg}{rgb}{0.95,0.95,0.95}
+\renewcommand{\listingscaption}[1]{\begin{center}CODE: #1\end{center}\vspace{-20pt}}
+\setminted{
+bgcolor=bg, frame=lines,
+mathescape, breaklines, breakanywhere,
+breaksymbolleft=\raisebox{0.8ex}{\small\reflectbox{\carriagereturn}},
+breaksymbolright=\small\carriagereturn
+}
 
 \title{DPLL Based SAT-Solver}
 \author{Kevin Wu\\1600012832}
@@ -19,12 +33,87 @@
 
 \begin{document}
 \maketitle
+\vspace{-20pt}
 \section{Key Implementation Ideas}
 \begin{enumerate}
-    \item 233
+\setlength{\itemsep}{.1em}
+\item \textbf{Parser:} By \mintinline{python}|input().split()|,
+    I could easily split those words. To provide convenient debug 
+    way, the \textit{CNFparser.py} also accepts inputs from terminal.
+    To maintain robustness and alert when input is incorrect,
+    format checkers are also added in it.
+    You can see different error types at the head of \textit{CNFparser.py}.
+\item \textbf{Data Structure:} The way I chose to express clauses is to have $D$  
+    \textit{a dictionary of variable to the set of equation index it appears}, $E$ a 
+    \textit{list of equations which are sets of variables}, and $L$ \textit{a list of current
+    equation index}.
+\item \textbf{Basic Property I:} Any time in the program running, it is guaranteed
+    that the $3$ data structures above
+    only represent current situation, which means eliminated variables and 
+    equations will not appear in any of them.
+\item \textbf{Set Variable:} \textit{Set Variable} is a fundamental function for \textit{BCP},
+    \textit{Set Pure}, and \textit{Decision}.
+    To keep \textit{Property I}, when using $D$ to go through
+    the equation $E_k$ where variable $v$ appears,
+    I need to check two thing: 
+    \begin{enumerate}
+        \small\setlength{\itemsep}{.1em}
+        \item If the equation becomes empty, I need to eliminate it in $L$.
+        \item If the equation becomes true, I need to eliminate it in $L$,
+            and remove all the other variables $v'$ in this equation which clears $E_k$,
+            and get $D[v']$ rid of $k$.
+    \end{enumerate}
+\item \textbf{Basic Property II:} Whenever program goes into \textit{Set Variable}, it is 
+    assumed that the assignment will not generate conflicts. Thus \textit{Set Variable} does
+    not check satisfiability. Moves described below will guarantee this.
+\item \textbf{BCP:} \textit{BCP} needs to go through $E$ to single out those one literal
+    equation. Use a \textit{set} to store them. When one is added, check whether 
+    its negation is inside. There is a potential trap in it depending how you implement 
+    \textit{BCP}, I will describe it below.
+\item \textbf{Set Pure:} \textit{Set Pure} needs to go through $D$ to pick those literals
+    the negation of which does not appear in equations. After this, set them to $true$,
+    which will maximumly preserve the satisfiability.
+\item \textbf{Decision:} \textit{Decision} is what program will do after
+    \textit{BCP} and \textit{Set Pure}. The way to pick what variable to try the assignment
+    is pretty tricky. I tried several strategies,
+    such as \textit{Random Pick}, \textit{Frequent
+    Pick}, \textit{Balanced Pick\footnote{\textit{Balanced Pick} means
+    the difference between it and its negation is as small as possible. It indicates either
+    $true$ or $false$ assignment is balanced in \textit{DFS}.}}. It turns out
+    \textit{Pick the most frequently appeared} is about $30\%$ faster than \textit{Random
+    Pick} and about $250\%$ outperforms \textit{Balanced Pick}. 
+    \textit{Frequent Pick} and \textit{Balanced Pick} combined together
+    can not provide substantial improvement. 
+\item \textbf{DPLL:} \textit{DPLL} is basically the combination of the algorithms above. 
+    To maintain \textit{Property I}, I need to fix change when program recalls.
+    Considering
+    efficiency, I have $2$ set of \textit{lists}; one records changes from \textit{BCP} and
+    \textit{Set Pure}, one records changes from \textit{Decision}. When program backtracks
+    from the first assignment trial,
+    undo the \textit{Decision} change; when it returns from 
+    the second trial, undo all the change and return to parent function.
+    There is a case which will not be examined during this. I will describe 
+    it below.
 \end{enumerate}
 \section{Potential Traps}
 \begin{enumerate}
-    \item 233
+\setlength{\itemsep}{.1em}
+\item In \textit{DPLL}, my program will not check whether there exists conflict
+    in one clause, which is both $X$ and $\neg X$ in the same clause. So I checked this in my
+    preparation part.
+\item In \textit{BCP}, there is a case needs further consider. Assume after you go through
+    all the clauses containing one literal, these literals are set $true$ at
+    the same time without further consideration, there will be a potential bug.
+    Considering this case $\{X\},\{\neg X,\neg Y\},\{Y\}$. If you set $X=true$ and $Y=true$
+    without checking the clause $\{\neg X,\neg Y\}$, it will be satisfiable, which is
+    incorrect. So in my version, I set them one by one.
+\item Pay attention to Python Import. Name file and function carefully.
+    I was bothered by the strange error log
+    when I have file like \textit{string.py} or \textit{parser.py}
+    with function \textit{parse} in it.
+\item I used test data from UBC 
+    website\footnote{\url{http://www.cs.ubc.ca/~hoos/SATLIB/benchm.html}}.
+    In these data, there is a mysterious \% at the end of every file input.
+    So, I had to add a special check for this in my \textit{CNFparser.py}.
 \end{enumerate}
 \end{document}
