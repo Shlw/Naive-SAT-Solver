@@ -3,3 +3,4 @@ src/__pycache__/*
 tex/*.out
 tex/*.log
 tex/*.aux
+tex/_minted-report/*
