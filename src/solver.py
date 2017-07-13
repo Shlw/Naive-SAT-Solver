@@ -3,10 +3,25 @@
 import CNFparser
 import sys
 
-global lst, is_sat, n, m, ans, equ, ind, var, cftInClause
+global lst, is_sat, n, m, ans, equ, ind, var
 
 def prepare():
-    global lst, n, m, ans, equ, ind, var, cftInClause
+    global lst, n, m, ans, equ, ind, var
+
+    tlst = lst
+    lst = []
+    m = len(tlst)
+    for i in range(m):
+        test = set() 
+        flag = False
+        for y in tlst[i]:
+            test.add(y)
+            if -y in test:
+                flag = True
+                break
+        if not flag:
+            lst.append(tlst[i])
+
     m = len(lst)
     ans = [0 for i in range(n + 1)]
     ind = set([i for i in range(m)])
@@ -19,9 +34,6 @@ def prepare():
         for y in lst[i]:
             var[y].add(i)
             now.add(y)
-            if -y in now:
-                cftInClause = True
-                return
         equ.append(now)
              
 def setVariable(v, lab, equ_modify, ind_modify, var_modify): 
@@ -184,7 +196,7 @@ def check():
     return True
 
 def main():
-    global lst, is_sat, n, ans, cftInClause
+    global lst, is_sat, n, ans
     if len(sys.argv) == 1:
         n, lst = CNFparser.parse()
     elif len(sys.argv) == 2:
@@ -194,11 +206,9 @@ def main():
         return
 
     is_sat = False
-    cftInClause = False
+    prepare()
     if n:
-        prepare()
-        if not cftInClause: 
-            dpll()
+        dpll()
 
     if is_sat:
         print('Satisfiable')
