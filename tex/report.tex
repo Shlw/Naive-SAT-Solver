@@ -14,7 +14,7 @@
 \usepackage{xcolor}
 \usepackage{dingbat}
 
-\geometry{left=1.5cm,right=1.5cm,top=0cm,bottom=2cm}
+\geometry{left=1.5cm,right=1.5cm,top=1.5cm,bottom=2cm}
 
 \hypersetup{hidelinks}
 
@@ -47,6 +47,10 @@ breaksymbolright=\small\carriagereturn
     \textit{a dictionary of variable to the set of equation index it appears}, $E$ a 
     \textit{list of equations which are sets of variables}, and $L$ \textit{a list of current
     equation index}.
+\item \textbf{Preparation:}
+    In \textit{DPLL}, my program will not check whether there exists both $X$ and
+    $\neg X$ in the same clause. So I checked this in my preparation part, which can
+    save some search time.
 \item \textbf{Basic Property I:} Any time in the program running, it is guaranteed
     that the $3$ data structures above
     only represent current situation, which means eliminated variables and 
@@ -92,15 +96,10 @@ breaksymbolright=\small\carriagereturn
     from the first assignment trial,
     undo the \textit{Decision} change; when it returns from 
     the second trial, undo all the change and return to parent function.
-    There is a case which will not be examined during this. I will describe 
-    it below.
 \end{enumerate}
 \section{Potential Traps}
 \begin{enumerate}
 \setlength{\itemsep}{.1em}
-\item In \textit{DPLL}, my program will not check whether there exists conflict
-    in one clause, which is both $X$ and $\neg X$ in the same clause. So I checked this in my
-    preparation part.
 \item In \textit{BCP}, there is a case needs further consider. Assume after you go through
     all the clauses containing one literal, these literals are set $true$ at
     the same time without further consideration, there will be a potential bug.
