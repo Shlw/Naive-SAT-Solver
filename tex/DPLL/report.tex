@@ -9,23 +9,10 @@
 \usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage{geometry}
-\usepackage{caption}
-\usepackage{minted}
-\usepackage{xcolor}
-\usepackage{dingbat}
 
 \geometry{left=1.5cm,right=1.5cm,top=1.5cm,bottom=2cm}
 
 \hypersetup{hidelinks}
-
-\definecolor{bg}{rgb}{0.95,0.95,0.95}
-\renewcommand{\listingscaption}[1]{\begin{center}CODE: #1\end{center}\vspace{-20pt}}
-\setminted{
-bgcolor=bg, frame=lines,
-mathescape, breaklines, breakanywhere,
-breaksymbolleft=\raisebox{0.8ex}{\small\reflectbox{\carriagereturn}},
-breaksymbolright=\small\carriagereturn
-}
 
 \title{DPLL Based SAT-Solver}
 \author{Kevin Wu\\1600012832}
@@ -115,5 +102,5 @@ breaksymbolright=\small\carriagereturn
     In these data, there is a mysterious \% at the end of every file input.
     So, I had to add a special check for this in my \textit{CNFparser.py}.
 \end{enumerate}
-\textbf{Note:} Aside from DPLL based SAT-Solver, I also implemented a CDCL based SAT-Solver, the code and report of which can be found in \url{this website}
+\textbf{Note:} Aside from DPLL based SAT-Solver, I also implemented a CDCL based SAT-Solver, the code and report of which can be found in \url{https://github.com/Shlw/Naive-SAT-Solver}
 \end{document}
