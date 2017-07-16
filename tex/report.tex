@@ -37,12 +37,12 @@ breaksymbolright=\small\carriagereturn
 \section{Key Implementation Ideas}
 \begin{enumerate}
 \setlength{\itemsep}{.1em}
-\item \textbf{Parser:} By \mintinline{python}|input().split()|,
-    I could easily split those words. To provide convenient debug 
-    way, the \textit{CNFparser.py} also accepts inputs from terminal.
-    To maintain robustness and alert when input is incorrect,
-    format checkers are also added in it.
-    You can see different error types at the head of \textit{CNFparser.py}.
+%\item \textbf{Parser:} By \mintinline{python}|input().split()|,
+    %I could easily split those words. To provide convenient debug 
+    %way, the \textit{CNFparser.py} also accepts inputs from terminal.
+    %To maintain robustness and alert when input is incorrect,
+    %format checkers are also added in it.
+    %You can see different error types at the head of \textit{CNFparser.py}.
 \item \textbf{Data Structure:} The way I chose to express clauses is to have $D$  
     \textit{a dictionary of variable to the set of equation index it appears}, $E$ a 
     \textit{list of equations which are sets of variables}, and $L$ \textit{a list of current
@@ -85,7 +85,7 @@ breaksymbolright=\small\carriagereturn
     the difference between it and its negation is as small as possible. It indicates either
     $true$ or $false$ assignment is balanced in \textit{DFS}.}}. It turns out
     \textit{Pick the most frequently appeared} is about $30\%$ faster than \textit{Random
-    Pick} and about $250\%$ outperforms \textit{Balanced Pick}. 
+    Pick} and way better than \textit{Balanced Pick}. 
     \textit{Frequent Pick} and \textit{Balanced Pick} combined together
     can not provide substantial improvement. 
 \item \textbf{DPLL:} \textit{DPLL} is basically the combination of the algorithms above. 
@@ -115,4 +115,5 @@ breaksymbolright=\small\carriagereturn
     In these data, there is a mysterious \% at the end of every file input.
     So, I had to add a special check for this in my \textit{CNFparser.py}.
 \end{enumerate}
+\textbf{Note:} Aside from DPLL based SAT-Solver, I also implemented a CDCL based SAT-Solver, the code and report of which can be found in \url{this website}
 \end{document}
