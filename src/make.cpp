@@ -6,8 +6,8 @@ int n, m;
 
 int main() {
     srand(time(0));
-    n = 4;
-    m = 5;
+    n = 10;
+    m = 30;
     printf("p PP %d %d\n", n, m);
     for (int i = 0; i < m; ++i) {
         for (int j = 0; j < rand() % n + 1; ++j) {
