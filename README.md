@@ -1,4 +1,4 @@
-# DPLL
+# Naive-SAT-Solver
 ## Description
 DPLL based SAT Solver
 and
