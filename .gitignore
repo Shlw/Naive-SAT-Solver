@@ -1,6 +1,8 @@
 data/*
 src/__pycache__/*
-tex/*.out
-tex/*.log
-tex/*.aux
-tex/_minted-report/*
+tex/DPLL/*.out
+tex/DPLL/*.log
+tex/DPLL/*.aux
+tex/CDCL/*.out
+tex/CDCL/*.log
+tex/CDCL/*.aux
