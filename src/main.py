@@ -211,13 +211,13 @@ def main():
         dpll()
 
     if is_sat:
-        print('Satisfiable')
+        print('s SATISFIABLE')
         #for i in range(1, n + 1):
             #print('x_%d = %d' % (i, ans[i]))
-        if not check():
-            print('Conflict')
+        #if not check():
+            #print('Conflict')
     else:
-        print('Unsatisfiable')
+        print('s UNSATISFIABLE')
 
 
 if __name__ == '__main__':
