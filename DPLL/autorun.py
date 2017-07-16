@@ -11,7 +11,7 @@ os.system('ls %s > list.txt' % path)
 f = open('list.txt', 'r')
 cnt = 0
 for x in f.readlines():
-    tpath = 'python3 main.py ' + path + x
+    tpath = 'python3 dpll.py ' + path + x
     print(cnt)
     os.system(tpath)
     cnt += 1
