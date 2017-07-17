@@ -41,15 +41,12 @@ def setVariable(v, lab, equ_modify, ind_modify, var_modify):
     if v < 0:
         v = -v
         lab = not lab
+    flag = False
     ans[v] = lab
     for x in var[v]:
         var_modify.append((v, x))
         equ_modify.append((x, v))
         equ[x].remove(v)
-        if not equ[x]:
-            ind_modify.append(x)
-            ind.remove(x)
-            continue
         if lab:
             ind_modify.append(x)
             ind.remove(x)
@@ -58,16 +55,17 @@ def setVariable(v, lab, equ_modify, ind_modify, var_modify):
                 var_modify.append((y, x))
                 var[y].remove(x)
             equ[x].clear()
+            continue
+        elif not equ[x]:
+            flag = True
     var[v].clear()
+    if flag:
+        return True
 
     for x in var[-v]:
         var_modify.append((-v, x))
         equ_modify.append((x, -v))
         equ[x].remove(-v)
-        if not equ[x]:
-            ind_modify.append(x)
-            ind.remove(x)
-            continue
         if not lab:
             ind_modify.append(x)
             ind.remove(x)
@@ -76,7 +74,13 @@ def setVariable(v, lab, equ_modify, ind_modify, var_modify):
                 var_modify.append((y, x))
                 var[y].remove(x)
             equ[x].clear()
+            continue
+        elif not equ[x]:
+            flag = True
     var[-v].clear()
+    if flag:
+        return True
+    return False
 
 def eliminateUnit(equ_modify, ind_modify, var_modify):
     global ans, equ, ind, var
@@ -90,9 +94,10 @@ def eliminateUnit(equ_modify, ind_modify, var_modify):
                 return False, True
     if not lst:
         return False, False
-    x = lst.pop()
-    setVariable(x, True, equ_modify, ind_modify, var_modify)
-
+    for x in lst:
+        flag = setVariable(x, True, equ_modify, ind_modify, var_modify)
+        if flag:
+            return False, True
     return True, False
 
 
