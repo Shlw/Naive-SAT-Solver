@@ -15,5 +15,7 @@ It also supports input from console by leaving
 DIMACS-CNF Format
 ## Course
 Logic and Program Verification
+## Test Data
+http://www.cs.ubc.ca/~hoos/SATLIB/benchm.html
 ## Detail
 See DPLL.pdf & CDCL.pdf
