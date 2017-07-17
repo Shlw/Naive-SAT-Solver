@@ -3,7 +3,7 @@
 import CNFparser
 import sys
 
-global lst, is_sat, n, m, ans, equ, ind, var, fst_equ, d, stk, dag
+global lst, is_sat, n, m, ans, equ, ind, var, fst_equ, d, stk, dag, chooseVariable
 
 def prepare():
     global lst, n, m, ans, equ, ind, var, fst_equ, d, dag
@@ -154,8 +154,8 @@ def eliminatePure(depth, equ_modify, ind_modify, var_modify):
     for x in lst:
         setVariable(depth, x, True, equ_modify, ind_modify, var_modify)
     return True
-
-def chooseVariable():
+    
+def chooseVariableflat():
     global var
     ret = 0
     maxn = -10
@@ -167,6 +167,22 @@ def chooseVariable():
                 v = x
             else:
                 s = l1 + l1
+                v = -x
+            if s > maxn:
+                maxn, ret = s, v
+    return ret
+
+def chooseVariableother():
+    global var
+    ret = 0
+    maxn = -10
+    for x in var:
+        if x > 0:
+            l1, l2 = len(var[x]), len(var[-x])
+            s = l1 + l2
+            if l1 > l2:
+                v = x
+            else:
                 v = -x
             if s > maxn:
                 maxn, ret = s, v
@@ -220,7 +236,7 @@ def clauseLearning(cls):
     return tmaxn
 
 def cdcl():
-    global stk, ind, var, equ, dag, is_sat, n
+    global stk, ind, var, equ, dag, is_sat, n, chooseVariable
     stk = [[[0, True], [], [], [], []] for i in range(n + 1)]
     tail = 0
     conflict, s = propagation(0, stk[0][1], stk[0][2], stk[0][3], stk[0][4])
@@ -260,8 +276,13 @@ def cdcl():
             dag[stk[tail][0][0]].clear()
             tail -= 1
 
-def solve(st = ''):
-    global lst, is_sat, n, ans, ind
+def solve(cases, st = ''):
+    global lst, is_sat, n, ans, ind, chooseVariable
+    if cases == 0:
+        chooseVariable = chooseVariableother
+    else:
+        chooseVariable = chooseVariableflat
+    
     if st == '':
         n, lst = CNFparser.parse()
     else:

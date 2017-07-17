@@ -1,0 +1,93 @@
+% !TeX encoding = UTF-8
+% !TeX program = xelatex+shellescape
+% !TeX spellcheck = LaTeX
+%
+% Author : Shlw
+\documentclass[a4paper,10pt]{article}
+
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+
+\geometry{left=1cm,right=1.2cm,top=0cm,bottom=1.5cm}
+
+\hypersetup{hidelinks}
+
+\title{Key Implementation Ideas}
+\author{Kevin Wu 1600012832}
+\date{}
+
+\begin{document}
+\maketitle
+\vspace{-20pt}
+\section{Clarification}
+After finishing DPLL, I found it quite slow in some unsat cases. So I implemented CDCL. They all have advantages. The classification in \textit{main.py} was derived from test results of several different kinds of dataset.
+\vspace{-5pt}
+\section{DPLL}
+\begin{enumerate}
+\setlength{\itemsep}{.1em}
+\item \textbf{Data Structure:} $D$:
+    \textit{a dictionary of variable mapping to the set of clause it appears in}; $E$:
+    \textit{a list of clauses which are variable sets}; $L$: \textit{a list of current
+    clause index}. (These are abbreviations of the real name in code.)
+\item \textbf{Preparation:}
+    Eliminate those clauses with both $X$ and $\neg X$ inside in advance.
+\item \textbf{Basic Property:} Any time in the running, it is guaranteed
+    that the $3$ data structures
+    only represent current situation, which means eliminated variables and 
+    clauses will not appear in any of them.
+\item \textbf{Set Variable:} To maintain \textit{Property}, when using $D$ to go through
+    clauses $E_k$ where variable $v$ appears, these need to be checked during assignment:
+    \vspace{-5pt}
+    \begin{enumerate}
+        \small\setlength{\itemsep}{.1em}
+        \item \textbf{case 1:} $E_k$ is unitary. If $E_k$ becomes $false$, return a conflict; otherwise, eliminate it in $L$.
+        \item \textbf{case 2:} $E_k$ is not unitary and it becomes $true$. Remove all $v'\in E_k$ and get $D[v']$ rid of $k$.
+    \end{enumerate}
+\item \textbf{BCP:} \textit{BCP} needs to go through $E$ to single out unitary 
+    clauses. Use a \textit{set} to store literals. When one is added, check whether 
+    its negation is inside.
+    Also, consider this special case---$\{X\},\{\neg X,\neg Y\},\{Y\}$. 
+    $X$ and $Y$ can not be set simultaneously
+    without checking $\{\neg X,\neg Y\}$. 
+    I solve this by the checker in \textit{Set Variable}.
+\item \textbf{Set Pure:} \textit{Set Pure} needs to go through $D$ to pick the literals,
+    the negation of which does not appear in $E$. After this, set them to $true$,
+    which will maximumly preserve the satisfiability.
+\item \textbf{Decision:} I tried several strategies like
+    \textit{Random Pick}, \textit{Frequent
+        Pick}\footnote{\textit{Frequent Pick} means to choose the variable (and its negation) that mostly appears.}, \textit{Balanced Pick\footnote{\textit{Balanced} means
+    the smallest difference between variable and its negation. It indicates 
+    $true$ and $false$ assignment are more balanced in \textit{DFS}.}}. 
+    \textit{Frequent Pick} is the fastest.
+\item \textbf{DPLL:} For efficiency, I have $2$ \textit{list}; one records changes from \textit{BCP} and
+    \textit{Set Pure}, one records \textit{Decision} change. When program first backtracks, undo the \textit{Decision} change; after its second recursion, fix all the change and return.
+\end{enumerate}
+\vspace{-5pt}
+\section{CDCL}
+\begin{enumerate}
+\setlength{\itemsep}{.1em}
+\item \textbf{Main Process:} 
+\vspace{-7pt}
+\begin{center}
+\begin{enumerate}
+\small\setlength{\itemsep}{.1em}
+\item Select a variable and assign \textit{true} or \textit{False}. 
+\item Apply Boolean constraint propagation (BCP).
+\item Build implication graph.
+\item If conflict occurs, analyze it and back jump.
+Otherwise continue from step $1$ until all variables are assigned.
+\end{enumerate}
+\end{center}
+\vspace{-5pt}
+\item \textbf{Set Pure:} Based on the instructions from Wikipedia, there is no \textit{Set Pure} procedure. But this process does no harm to other parts; so I added this feature in my code like DPLL. Since it preserves the satisfiability, those literals eliminated by \textit{Set Pure} do not need to be drawn into \textit{Implication Graph}.
+\item \textbf{Implication Graph:} This graph (DAG) shows how the program determines every literals step by step. Basically, when you do \textit{BCP}, mark the variable as \textit{deduction} and add edges from other variables in the clause to it; when you do \textit{Decision}, mark the variable as \textit{decision}.
+\item \textbf{Conflict Analysis:} This tells the program why conflict occurs. From conflict point, back search all the \textit{decision} points that contribute to this \textit{deduction}; these variables form a new clause. And then add it to the original clause group.
+Since it is a DAG, I implicitly build the graph during \textit{BCP}, and store the clause with the variable. So when conflict happens, I can obtain the clause immediately rather than waste time on back searching.
+\item \textbf{Clause Learning:} The learned clause is from \textit{Conflict Analysis}.
+    But how to deal with those eliminated literals (in previous \textit{Decision} and \textit{BCP}) in the new clause needs further consideration. Since my implementation needs to guarantee that any time, data structures only represent current situation, I have to maintain the stack manually and mark those literals as eliminated in former stack level so as to recover them in recursion.
+\item \textbf{Back Jump:} From the learned clause, the program can jump back to the second latest \textit{decision}, for the last one can be determined by the \textit{BCP} there.
+\item \textbf{Decision:} Generally, I find \textit{Frequent Balanced Pick} is better, which is assume $X$ appears $l_1$ times and $\neg X$ appears $l_2$ times, choose the literal with maximum $l_1+l_2-|l_1-l_2|$. But the old strategy works better in \textit{flat} dataset.
+\end{enumerate}
+\end{document}
